@@ -9,7 +9,7 @@
 #define HEIGHT 600
 #define PLAYER_SIZE 20
 #define PROJECTILE_SIZE 5
-#define PROJECTILE_SPEED 1
+#define PROJECTILE_SPEED 0.2
 #define MOVE_SPEED 0.1f
 
 //const int WIDTH = BLOCKS * blockSize;
@@ -80,24 +80,24 @@ public:
     void shoot(sf::Keyboard::Key fireKey,sf::Keyboard::Key up, sf::Keyboard::Key down, sf::Keyboard::Key left, sf::Keyboard::Key right){
         sf::Vector2f shootDir(0,0);
 
-        if (!keyPressedLastFrame[sf::Keyboard::Space] && sf::Keyboard::isKeyPressed(sf::Keyboard::Space)){
-            if (sf::Keyboard::isKeyPressed(up)) shootDir = {0,-1};
-            if (sf::Keyboard::isKeyPressed(down)) shootDir = {0, 1};
-            if (sf::Keyboard::isKeyPressed(left))shootDir = {-1, 0};
-            if (sf::Keyboard::isKeyPressed(right)) shootDir = {1, 0};
+        if (!keyPressedLastFrame[fireKey] && sf::Keyboard::isKeyPressed(fireKey)){
+            if (sf::Keyboard::isKeyPressed(up)) shootDir.y = -1;
+            if (sf::Keyboard::isKeyPressed(down)) shootDir.y = 1;
+            if (sf::Keyboard::isKeyPressed(left))shootDir.x = -1;
+            if (sf::Keyboard::isKeyPressed(right)) shootDir.x =1;
 
         if (shootDir != sf::Vector2f(0,0)){
             sf::Vector2f startpos= body.getPosition() + sf::Vector2f(PLAYER_SIZE/2, PLAYER_SIZE/2);
             projectiles.push_back(Projectile(startpos, shootDir));
-            keyReleased = false; //Evita disparos continuos
+            //keyReleased = false; //Evita disparos continuos
         }
         
     }
     //cambiar de estado variable si la tecla ya no esta presionada
-    if (!sf::Keyboard::isKeyPressed(fireKey)){
-        keyReleased= true;   
+    //if (!sf::Keyboard::isKeyPressed(fireKey)){
+        //keyReleased= true;   
         
-    }
+    //}
     }
     void draw(){
         window.draw(body);
@@ -190,8 +190,8 @@ int main()
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) p2.direction.x =1;
 
         //Disparos
-        p1.shoot(sf::Keyboard::W, sf::Keyboard::S, sf::Keyboard::A, sf::Keyboard::D, sf::Keyboard::Space);
-        p2.shoot(sf::Keyboard::Up, sf::Keyboard::Down, sf::Keyboard::Left, sf::Keyboard::Right, sf::Keyboard::Enter);
+        p1.shoot(sf::Keyboard::Space, sf::Keyboard::W, sf::Keyboard::S, sf::Keyboard::A, sf::Keyboard::D);
+        p2.shoot(sf::Keyboard::Enter, sf::Keyboard::Up, sf::Keyboard::Down, sf::Keyboard::Left, sf::Keyboard::Right);
 
         //Actualizar posiciones y proyectiles
         p1.Move();
