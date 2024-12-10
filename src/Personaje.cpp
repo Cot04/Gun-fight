@@ -8,7 +8,7 @@
 #define WIDTH 800
 #define HEIGHT 600
 #define PLAYER_SIZE 20
-#define PROJECTILE_SIZE 1
+#define PROJECTILE_SIZE 5
 #define PROJECTILE_SPEED 1
 #define MOVE_SPEED 0.1f
 
@@ -53,6 +53,7 @@ public:
     sf::Vector2f direction ={0,0};
     std::vector<Projectile >projectiles;
     int lives; //Vidas
+    bool keyReleased= true;
     
 
     Player(sf::Color c, sf::Vector2f startPos, int initialLives =10): lives(initialLives){
@@ -74,22 +75,30 @@ public:
 
         body.setPosition(newPosition);
     }
+    bool KeyReleased = true;
 
-    void shoot(sf::Keyboard::Key up, sf::Keyboard::Key down, sf::Keyboard::Key left, sf::Keyboard::Key right){
+    void shoot(sf::Keyboard::Key fireKey,sf::Keyboard::Key up, sf::Keyboard::Key down, sf::Keyboard::Key left, sf::Keyboard::Key right){
         sf::Vector2f shootDir(0,0);
 
-        if (sf::Keyboard::isKeyPressed(up) && !keyPressedLastFrame[up]) shootDir={0,-1};
-        if (sf::Keyboard::isKeyPressed(down) && !keyPressedLastFrame[down]) shootDir = {0, 1};
-        if (sf::Keyboard::isKeyPressed(left) && !keyPressedLastFrame[left])shootDir = {-1, 0};
-        if (sf::Keyboard::isKeyPressed(right) && !keyPressedLastFrame[right]) shootDir = {1, 0};
+        if (!keyPressedLastFrame[sf::Keyboard::Space] && sf::Keyboard::isKeyPressed(sf::Keyboard::Space)){
+            if (sf::Keyboard::isKeyPressed(up)) shootDir = {0,-1};
+            if (sf::Keyboard::isKeyPressed(down)) shootDir = {0, 1};
+            if (sf::Keyboard::isKeyPressed(left))shootDir = {-1, 0};
+            if (sf::Keyboard::isKeyPressed(right)) shootDir = {1, 0};
 
         if (shootDir != sf::Vector2f(0,0)){
             sf::Vector2f startpos= body.getPosition() + sf::Vector2f(PLAYER_SIZE/2, PLAYER_SIZE/2);
             projectiles.push_back(Projectile(startpos, shootDir));
+            keyReleased = false; //Evita disparos continuos
         }
         
     }
-
+    //cambiar de estado variable si la tecla ya no esta presionada
+    if (!sf::Keyboard::isKeyPressed(fireKey)){
+        keyReleased= true;   
+        
+    }
+    }
     void draw(){
         window.draw(body);
         for (auto &p : projectiles)
@@ -119,11 +128,13 @@ void handleCollisions(Player &shooter, Player &target, int &score){
 
     projectiles.erase(std::remove_if(projectiles.begin(),projectiles.end(),[&](Projectile &p){
         if (checkCollision(target, p)){
-            target.lives --; //restar una vida
-            score ++; //incrementar puntuacion
-            std::cout <<" Press 'R' to go to the next round ";
+            if(target.lives > 0){
+                target.lives --; //restar una vida
+                score ++; //incrementar puntuacion
+                std::cout <<" Press 'R' to go to the next round ";
+            }
             return true; //Eliminar el proyectil
-        }
+         }
         return false;
     }),projectiles.end());
 }
@@ -152,15 +163,17 @@ int main()
     p2LivesText.setFillColor(sf::Color::White);
 
     //crear jugadores
-    Player p1(sf::Color::Red, {100, HEIGHT/2}, 3);
-    Player p2(sf::Color::Blue, {WIDTH-100, HEIGHT/2}, 3);
+    Player p1(sf::Color::Red, {100, HEIGHT/2}, 10);
+    Player p2(sf::Color::Blue, {WIDTH-100, HEIGHT/2}, 10);
 
     while(window.isOpen())
     {
         sf::Event e;
         while(window.pollEvent(e)){
-            if(e.type == sf::Event::Closed) window.close();
-            if(gameOver && sf::Keyboard::isKeyPressed(sf::Keyboard::R))main();
+            if(e.type == sf::Event::Closed) 
+            window.close();
+            if(gameOver && sf::Keyboard::isKeyPressed(sf::Keyboard::R))
+            main();
         }
 
         //Controles de los jugadores
@@ -177,16 +190,15 @@ int main()
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) p2.direction.x =1;
 
         //Disparos
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) 
-            p1.shoot(sf::Keyboard::W, sf::Keyboard::S, sf::Keyboard::A, sf::Keyboard::D);
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
-            p2.shoot(sf::Keyboard::Up, sf::Keyboard::Down, sf::Keyboard::Left, sf::Keyboard::Right);
+        p1.shoot(sf::Keyboard::W, sf::Keyboard::S, sf::Keyboard::A, sf::Keyboard::D, sf::Keyboard::Space);
+        p2.shoot(sf::Keyboard::Up, sf::Keyboard::Down, sf::Keyboard::Left, sf::Keyboard::Right, sf::Keyboard::Enter);
 
-        //Actualizar
+        //Actualizar posiciones y proyectiles
         p1.Move();
         p2.Move();
         p1.updateProjectiles();
         p2.updateProjectiles();
+        //colisiones
         handleCollisions(p1, p2, redScore); //Los disparos de p1 afectan a p2
         handleCollisions(p2, p1, blueScore);
 
@@ -223,8 +235,13 @@ int main()
             window.draw(gameOverText);
         }
         window.display();
-        continue;
+        //continue;
+    
+    for (int i = 0; i < 256; i++)
+    {
+        keyPressedLastFrame[i]= sf::Keyboard::isKeyPressed(static_cast<sf::Keyboard::Key>(i));
     }
-    return 0;
+  
+    }
 }
        
