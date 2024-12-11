@@ -52,8 +52,8 @@ public:
 class Player
 {
 public:
-    sf::RectangleShape body;
-    sf::Color color;
+    sf::Sprite sprite;
+    sf::Texture texture;
     sf::Vector2f direction = {0, 0};
     std::vector<Projectile> projectiles;
     int lives; // Vidas
@@ -61,29 +61,31 @@ public:
     float shootTime = 0.1f;
     bool shootRunning = false; 
 
-    Player(sf::Color c, sf::Vector2f startPos, int initialLives = 10) : lives(initialLives)
+    Player(const std::string& texturePath, sf::Vector2f startPos, int initialLives = 10) : lives(initialLives)
     {
-        body.setSize({PLAYER_SIZE, PLAYER_SIZE});
-        body.setFillColor(c);
-        body.setPosition(startPos);
-        color = c;
+        if(!texture.loadFromFile(texturePath)){
+            std::cerr <<"Error al cargar la textura"<< texturePath << std::endl;
+            exit(-1);
+        }
+        sprite.setTexture(texture);
+        sprite.setPosition(startPos);
     }
 
     void Move()
     {
-        sf::Vector2f newPosition = body.getPosition() + direction * MOVE_SPEED;
+        sf::Vector2f newPosition = sprite.getPosition() + direction * MOVE_SPEED;
 
         // Restringir limites de pantalla
         if (newPosition.x < 0)
             newPosition.x = 0;
         if (newPosition.y < 0)
             newPosition.y = 0;
-        if (newPosition.x + PLAYER_SIZE > WIDTH)
-            newPosition.x = WIDTH - PLAYER_SIZE;
-        if (newPosition.y + PLAYER_SIZE > HEIGHT)
-            newPosition.y = HEIGHT - PLAYER_SIZE;
+        if (newPosition.x + sprite.getGlobalBounds().width > WIDTH)
+            newPosition.x = WIDTH - sprite.getGlobalBounds().width;
+        if (newPosition.y + sprite.getGlobalBounds().height > HEIGHT)
+            newPosition.y = HEIGHT - sprite.getGlobalBounds().height;
 
-        body.setPosition(newPosition);
+        sprite.setPosition(newPosition);
     }
 
     
@@ -95,7 +97,7 @@ public:
             
             if (direction != sf::Vector2f(0, 0))
             {
-                sf::Vector2f startpos = body.getPosition() + sf::Vector2f(PLAYER_SIZE / 2, PLAYER_SIZE / 2);
+                sf::Vector2f startpos = sprite.getPosition() + sf::Vector2f(sprite.getGlobalBounds().width / 2, sprite.getGlobalBounds().height / 2);
                 projectiles.push_back(Projectile(startpos, direction));
             }
         }
@@ -108,7 +110,7 @@ public:
     }
     void draw()
     {
-        window.draw(body);
+        window.draw(sprite);
         for (auto &p : projectiles)
         {
             window.draw(p.shape);
@@ -130,7 +132,7 @@ public:
 
 bool checkCollision(Player &player, Projectile &projectile)
 {
-    return player.body.getGlobalBounds().intersects(projectile.shape.getGlobalBounds());
+    return player.sprite.getGlobalBounds().intersects(projectile.shape.getGlobalBounds());
 }
 
 void handleCollisions(Player &shooter, Player &target, int &score)
@@ -175,16 +177,24 @@ int main()
     p2LivesText.setFillColor(sf::Color::Blue);
 
     sf::Texture backgroundTexture;
-    if (!backgroundTexture.loadFromFile("./assets/images/background.jpg"))
+    if (!backgroundTexture.loadFromFile("assets/images/Background.png"))
     {
         std::cout << "No se pudo cargar la textura de fondo. \n";
         return -1;
     }
     sf::Sprite backgroundSprite(backgroundTexture);
 
+    //Escalar el fondo al tamaño de la ventana
+    sf::Vector2u textureSize= backgroundTexture.getSize();
+    sf::Vector2u windowSize = window.getSize();
+    backgroundSprite.setScale(float(windowSize.x) / textureSize.x, float(windowSize.y) / textureSize.y);
+
     // crear jugadores
-    Player p1(sf::Color::Red, {100, HEIGHT / 2}, 10);
-    Player p2(sf::Color::Blue, {WIDTH - 100, HEIGHT / 2}, 10);
+    Player p1("./assets/images/Cowboy2.png", {100, HEIGHT / 2}, 10);
+    Player p2("assets/images/Cowboy2.png", {WIDTH - 100, HEIGHT / 2}, 10);
+
+    p1.sprite.setScale(0.4f, 0.4f);
+    p2.sprite.setScale(0.4f, 0.4f);
 
     while (window.isOpen())
     {
