@@ -8,7 +8,7 @@
 #define WIDTH 800
 #define HEIGHT 600
 #define PLAYER_SIZE 20
-#define PROJECTILE_SIZE 5
+#define PROJECTILE_SIZE 6
 #define PROJECTILE_SPEED 0.2
 #define MOVE_SPEED 0.1f
 
@@ -162,12 +162,21 @@ int main()
     p1LivesText.setFillColor(sf::Color::White);
     p2LivesText.setFillColor(sf::Color::White);
 
+    sf::Texture backgroundTexture;
+    if(!backgroundTexture.loadFromFile("./assets/images/background.jpg")){
+        std::cout<<"No se pudo cargar la textura de fondo. \n";
+        return -1;
+    }
+    sf::Sprite backgroundSprite(backgroundTexture);
+
     //crear jugadores
     Player p1(sf::Color::Red, {100, HEIGHT/2}, 10);
     Player p2(sf::Color::Blue, {WIDTH-100, HEIGHT/2}, 10);
 
     while(window.isOpen())
     {
+        window.clear();
+        window.draw(backgroundSprite);
         sf::Event e;
         while(window.pollEvent(e)){
             if(e.type == sf::Event::Closed) 
