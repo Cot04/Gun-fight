@@ -32,7 +32,7 @@ public:
     Projectile(sf::Vector2f startPos, sf::Vector2f dir)
     {
         shape.setSize({PROJECTILE_SIZE, PROJECTILE_SIZE});
-        shape.setFillColor(sf::Color::Magenta);
+        shape.setFillColor(sf::Color::Yellow);
         shape.setPosition(startPos);
         direction = dir;
     }
