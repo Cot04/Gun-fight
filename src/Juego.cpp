@@ -40,6 +40,9 @@ void Juego::procesarEventos() {
     }
 }
 
+bool disparoP1Presionado = false;
+bool disparoP2Presionado = false;
+
 void Juego::actualizar() {
     if (finDelJuego) return;
 
@@ -49,18 +52,34 @@ void Juego::actualizar() {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) p1.direccion.y = 1;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) p1.direccion.x = -1;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) p1.direccion.x = 1;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) 
-        p1.disparar(p1.direccion, p1.sprite.getPosition());
 
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)){
+        if(!disparoP1Presionado){
+            p1.disparar(p1.direccion, p1.sprite.getPosition());
+            disparoP1Presionado = true;
+        }
+       
+    }
+    else{
+        disparoP1Presionado = false;
+    }
+        
     p2.direccion = {0, 0};
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) p2.direccion.y = -1;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) p2.direccion.y = 1;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) p2.direccion.x = -1;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) 
-        p2.direccion.x = 1;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) 
-        p2.disparar(p2.direccion, p2.sprite.getPosition());
-
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) p2.direccion.x = 1;
+    
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)){
+        if(!disparoP2Presionado){
+            p2.disparar(p2.direccion, p2.sprite.getPosition());
+            disparoP2Presionado = true;
+        }
+    }
+    else{
+        disparoP2Presionado = false;
+    }
+        
     p1.mover();
     p2.mover();
     p1.actualizarProyectiles();
@@ -74,8 +93,8 @@ void Juego::actualizar() {
         finDelJuego = true;
     }
 
-    textoVidasP1.setString("Vidas Jugador 1: " + std::to_string(p1.vidas));
-    textoVidasP2.setString("Vidas Jugador 2: " + std::to_string(p2.vidas));
+    textoVidasP1.setString("Vidas Jugador 1 " + std::to_string(p1.vidas));
+    textoVidasP2.setString("Vidas Jugador 2 " + std::to_string(p2.vidas));
 }
 
 void Juego::renderizar() {
