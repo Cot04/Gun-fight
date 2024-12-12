@@ -7,8 +7,8 @@
 #define HEIGHT 600
 #define PLAYER_SIZE 20
 #define PROJECTILE_SIZE 6
-#define PROJECTILE_SPEED 0.3
-#define MOVE_SPEED 0.1f
+#define PROJECTILE_SPEED 0.2
+#define MOVE_SPEED 0.03f
 
 class Projectile {
 public:
@@ -32,18 +32,59 @@ public:
     }
 };
 
+class Shoot {
+private:
+    std::vector<Projectile> projectiles;
+    sf::Clock clock;
+    float shootCooldown;
+    bool canShoot;
+
+public:
+    Shoot(float cooldown = 0.1f) : shootCooldown(cooldown), canShoot(true) {}
+
+    void attemptShoot(const sf::Vector2f &startPos, const sf::Vector2f &direction) {
+        if (canShoot && direction != sf::Vector2f(0, 0)) {
+            projectiles.emplace_back(startPos, direction);
+            canShoot = false;
+            clock.restart();
+        }
+    }
+
+    void updateProjectiles() {
+        for (auto &projectile : projectiles) {
+            projectile.move();
+        }
+
+        projectiles.erase(std::remove_if(projectiles.begin(), projectiles.end(), [](Projectile &p) {
+            return p.outOfBounds();
+        }), projectiles.end());
+
+        if (clock.getElapsedTime().asSeconds() >= shootCooldown) {
+            canShoot = true;
+        }
+    }
+
+    void draw(sf::RenderWindow &window) {
+        for (auto &projectile : projectiles) {
+            window.draw(projectile.shape);
+        }
+    }
+
+    std::vector<Projectile> &getProjectiles() {
+        return projectiles;
+    }
+};
+
 class Player {
 public:
     sf::Sprite sprite;
     sf::Texture texture;
     sf::Vector2f direction = {0, 0};
-    std::vector<Projectile> projectiles;
+    Shoot shooter;
     int lives;
-    sf::Clock clock;
-    float shootCooldown = 0.2f;
-    bool canShoot = true;
 
-    Player(const std::string &texturePath, sf::Vector2f startPos, int initialLives = 10) : lives(initialLives) {
+    Player(const std::string &texturePath, sf::Vector2f startPos, int initialLives = 10, float shootCooldown = 0.1f)
+        : lives(initialLives), shooter(shootCooldown) {
         if (!texture.loadFromFile(texturePath)) {
             std::cerr << "Error loading texture: " << texturePath << std::endl;
             exit(-1);
@@ -65,36 +106,38 @@ public:
     }
 
     void shoot(sf::Keyboard::Key fireKey) {
-        if (sf::Keyboard::isKeyPressed(fireKey) && canShoot) {
-            clock.restart();
-            canShoot = false;
-            if (direction != sf::Vector2f(0, 0)) {
-                sf::Vector2f startPos = sprite.getPosition() +
-                                        sf::Vector2f(sprite.getGlobalBounds().width / 2, sprite.getGlobalBounds().height / 2);
-                projectiles.push_back(Projectile(startPos, direction));
-            }
-        }
-
-        if (clock.getElapsedTime().asSeconds() >= shootCooldown) {
-            canShoot = true;
+        if (sf::Keyboard::isKeyPressed(fireKey)) {
+            sf::Vector2f startPos = sprite.getPosition() +
+                                    sf::Vector2f(sprite.getGlobalBounds().width / 2, sprite.getGlobalBounds().height / 2);
+            shooter.attemptShoot(startPos, direction);
         }
     }
 
     void updateProjectiles() {
-        for (auto &p : projectiles) {
-            p.move();
-        }
-        projectiles.erase(std::remove_if(projectiles.begin(), projectiles.end(), [](Projectile &p) {
-                          return p.outOfBounds();
-                      }),
-                      projectiles.end());
+        shooter.updateProjectiles();
     }
 
     void draw(sf::RenderWindow &window) {
         window.draw(sprite);
-        for (auto &p : projectiles) {
-            window.draw(p.shape);
-        }
+        shooter.draw(window);
+    }
+};
+
+class CollisionHandler {
+public:
+    static void handleCollisions(Player &shooter, Player &target, int &score) {
+        auto &projectiles = shooter.shooter.getProjectiles();
+
+        projectiles.erase(std::remove_if(projectiles.begin(), projectiles.end(), [&](Projectile &p) {
+            if (target.sprite.getGlobalBounds().intersects(p.shape.getGlobalBounds())) {
+                if (target.lives > 0) {
+                    target.lives--;
+                    score++;
+                }
+                return true;
+            }
+            return false;
+        }), projectiles.end());
     }
 };
 
@@ -161,7 +204,7 @@ private:
                 window.close();
 
             if (gameOver && sf::Keyboard::isKeyPressed(sf::Keyboard::R)) {
-                reset(); // Reiniciar el juego al presionar 'R'
+                reset();
             }
         }
     }
@@ -175,21 +218,21 @@ private:
         p1.updateProjectiles();
         p2.updateProjectiles();
 
-        handleCollisions(p1, p2, redScore);
-        handleCollisions(p2, p1, blueScore);
+        CollisionHandler::handleCollisions(p1, p2, redScore);
+        CollisionHandler::handleCollisions(p2, p1, blueScore);
 
         if (p1.lives <= 0 || p2.lives <= 0) {
             gameOver = true;
         }
 
-        p1LivesText.setString("Player 1 Lives: " + std::to_string(p1.lives));
-        p2LivesText.setString("Player 2 Lives: " + std::to_string(p2.lives));
+        p1LivesText.setString("Player 1 Lives " + std::to_string(p1.lives));
+        p2LivesText.setString("Player 2 Lives " + std::to_string(p2.lives));
     }
 
     void render() {
         window.clear();
-
         //window.draw(backgroundSprite);
+
         p1.draw(window);
         p2.draw(window);
 
@@ -201,7 +244,7 @@ private:
             gameOverText.setFont(font);
             gameOverText.setCharacterSize(30);
             gameOverText.setFillColor(sf::Color::White);
-            gameOverText.setString((p1.lives == 0) ? "Player 2 Wins!" : "Player 1 Wins!");
+            gameOverText.setString((p1.lives == 0) ? "Player 2 Wins" : "Player 1 Wins");
             gameOverText.setPosition(WIDTH / 2 - gameOverText.getLocalBounds().width / 2, HEIGHT / 2);
             window.draw(gameOverText);
         }
@@ -210,12 +253,12 @@ private:
     }
 
     void reset() {
-        p1 = Player("./assets/images/gunfight.png", {100, HEIGHT / 2}, 10);
-        p2 = Player("./assets/images/gunfight2.png", {WIDTH - 100, HEIGHT / 2}, 10);
-
-        p1.sprite.setScale(0.2f, 0.2f);
-        p2.sprite.setScale(0.2f, 0.2f);
-
+        p1.sprite.setPosition({100, HEIGHT / 2});
+        p2.sprite.setPosition({WIDTH - 100, HEIGHT / 2});
+        p1.lives = 10;
+        p2.lives = 10;
+        p1.shooter.getProjectiles().clear();
+        p2.shooter.getProjectiles().clear();
         redScore = 0;
         blueScore = 0;
         gameOver = false;
@@ -244,21 +287,6 @@ private:
 
         p1.shoot(sf::Keyboard::Space);
         p2.shoot(sf::Keyboard::Enter);
-    }
-
-    void handleCollisions(Player &shooter, Player &target, int &score) {
-        auto &projectiles = shooter.projectiles;
-
-        projectiles.erase(std::remove_if(projectiles.begin(), projectiles.end(), [&](Projectile &p) {
-            if (target.sprite.getGlobalBounds().intersects(p.shape.getGlobalBounds())) {
-                if (target.lives > 0) {
-                    target.lives--;
-                    score++;
-                }
-                return true;
-            }
-            return false;
-        }), projectiles.end());
     }
 };
 
