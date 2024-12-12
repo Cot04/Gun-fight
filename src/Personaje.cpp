@@ -58,13 +58,14 @@ public:
     std::vector<Projectile> projectiles;
     int lives; // Vidas
     sf::Clock clock;
-    float shootTime = 0.1f;
-    bool shootRunning = false; 
+    float shootTime = 0.2f;
+    bool shootRunning = false;
 
-    Player(const std::string& texturePath, sf::Vector2f startPos, int initialLives = 10) : lives(initialLives)
+    Player(const std::string &texturePath, sf::Vector2f startPos, int initialLives = 10) : lives(initialLives)
     {
-        if(!texture.loadFromFile(texturePath)){
-            std::cerr <<"Error al cargar la textura"<< texturePath << std::endl;
+        if (!texture.loadFromFile(texturePath))
+        {
+            std::cerr << "Error al cargar la textura" << texturePath << std::endl;
             exit(-1);
         }
         sprite.setTexture(texture);
@@ -88,13 +89,13 @@ public:
         sprite.setPosition(newPosition);
     }
 
-    
     void shoot(sf::Keyboard::Key fireKey)
     {
-        if(sf::Keyboard::isKeyPressed(fireKey) && !shootRunning){
+        if (sf::Keyboard::isKeyPressed(fireKey) && !shootRunning)
+        {
             clock.restart();
             shootRunning = true;
-            
+
             if (direction != sf::Vector2f(0, 0))
             {
                 sf::Vector2f startpos = sprite.getPosition() + sf::Vector2f(sprite.getGlobalBounds().width / 2, sprite.getGlobalBounds().height / 2);
@@ -103,7 +104,7 @@ public:
         }
 
         // Actualizar el frame de la animación
-        if ( clock.getElapsedTime().asSeconds() >= shootTime)
+        if (clock.getElapsedTime().asSeconds() >= shootTime)
         {
             shootRunning = false;
         }
@@ -173,8 +174,8 @@ int main()
     p2LivesText.setPosition(0, 60);
     p1LivesText.setCharacterSize(24);
     p2LivesText.setCharacterSize(24);
-    p1LivesText.setFillColor(sf::Color::Red);
-    p2LivesText.setFillColor(sf::Color::Blue);
+    p1LivesText.setFillColor(sf::Color::White);
+    p2LivesText.setFillColor(sf::Color::White);
 
     sf::Texture backgroundTexture;
     if (!backgroundTexture.loadFromFile("assets/images/Background.png"))
@@ -184,17 +185,17 @@ int main()
     }
     sf::Sprite backgroundSprite(backgroundTexture);
 
-    //Escalar el fondo al tamaño de la ventana
-    sf::Vector2u textureSize= backgroundTexture.getSize();
+    // Escalar el fondo al tamaño de la ventana
+    sf::Vector2u textureSize = backgroundTexture.getSize();
     sf::Vector2u windowSize = window.getSize();
     backgroundSprite.setScale(float(windowSize.x) / textureSize.x, float(windowSize.y) / textureSize.y);
 
     // crear jugadores
-    Player p1("./assets/images/Cowboy2.png", {100, HEIGHT / 2}, 10);
-    Player p2("assets/images/Cowboy2.png", {WIDTH - 100, HEIGHT / 2}, 10);
+    Player p1("./assets/images/gunfight.png", {100, HEIGHT / 2}, 10);
+    Player p2("assets/images/gunfight2.png", {WIDTH - 100, HEIGHT / 2}, 10);
 
-    p1.sprite.setScale(0.4f, 0.4f);
-    p2.sprite.setScale(0.4f, 0.4f);
+    p1.sprite.setScale(0.2f, 0.2f);
+    p2.sprite.setScale(0.2f, 0.2f);
 
     while (window.isOpen())
     {
@@ -259,8 +260,8 @@ int main()
         }
 
         // Actualizar textos de vidas
-        p1LivesText.setString("Player 1 Lives: " + std::to_string(p1.lives));
-        p2LivesText.setString("Player 2 Lives: " + std::to_string(p2.lives));
+        p1LivesText.setString("Player 1 Lives " + std::to_string(p1.lives));
+        p2LivesText.setString("Player 2 Lives " + std::to_string(p2.lives));
 
         // Dibujar
         window.clear(sf::Color::Black);
@@ -275,7 +276,7 @@ int main()
             gameOverText.setFont(font);
             gameOverText.setCharacterSize(30);
             gameOverText.setFillColor(sf::Color::White);
-            gameOverText.setString((p1.lives == 0) ? "Player 2 wins!" : "Player 1 Wins!");
+            gameOverText.setString((p1.lives == 0) ? "Player 2 wins" : "Player 1 Wins");
             gameOverText.setPosition(WIDTH / 2 - gameOverText.getLocalBounds().width / 2, HEIGHT / 2);
             window.draw(gameOverText);
         }
