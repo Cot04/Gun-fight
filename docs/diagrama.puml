@@ -1,0 +1,26 @@
+@startuml diagrama
+
+class Personaje
+
+class Jugador{
+    + vida
+}
+
+class Proyectil
+
+class Colision
+
+class Movimiento
+
+class Movimientobala
+
+class Juego
+
+Juego "1" *-- "2" Jugador
+Jugador --|> Personaje
+Personaje "1" *-- "1" Colision
+Personaje "1" *-- "4" Movimiento
+Personaje "1" o-- "*" Proyectil
+Proyectil "1" *-- "4" Movimiento
+
+@enduml
