@@ -5,8 +5,8 @@
 #define HEIGHT 600
 #define MOVE_SPEED 0.03f
 
-Jugador::Jugador(const std::string &texturePath, sf::Vector2f startPos, int vidasIniciales) 
-    : vidas(vidasIniciales), direccion(0, 0) {
+Jugador::Jugador(const std::string &texturePath, sf::Vector2f startPos, int vidasIniciales, float cooldown) 
+    : vidas(vidasIniciales), direccion(0, 0), cooldownDisparo(cooldown){
     if (!texture.loadFromFile(texturePath)) {
         std::cerr << "Error cargando textura: " << texturePath << std::endl;
         exit(-1);
@@ -28,7 +28,11 @@ void Jugador::mover() {
 }
 
 void Jugador::disparar(const sf::Vector2f &direccion, const sf::Vector2f &startPos) {
-    proyectiles.emplace_back(startPos, direccion);
+    if(clock.getElapsedTime().asSeconds() >= cooldownDisparo && direccion != sf::Vector2(0.f,0.f)){
+        proyectiles.emplace_back(startPos, direccion);
+        clock.restart();
+    }
+    
 }
 
 void Jugador::actualizarProyectiles() {
@@ -39,6 +43,8 @@ void Jugador::actualizarProyectiles() {
                                      [](Proyectil &p) { return p.fueraDeLimites(); }),
                       proyectiles.end());
 }
+
+
 
 void Jugador::dibujar(sf::RenderWindow &ventana) {
     ventana.draw(sprite);

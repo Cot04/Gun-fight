@@ -5,17 +5,18 @@
 #define HEIGHT 600
 
 Juego::Juego()
+
     : ventana(sf::VideoMode(WIDTH, HEIGHT), "Gunfight"),
       p1("./assets/images/gunfight.png", {100, HEIGHT / 2}, 10),
       p2("./assets/images/gunfight2.png", {WIDTH - 100, HEIGHT / 2}, 10) {
 
-    if (!fuente.loadFromFile("./assets/fonts/Ring.ttf")) {
+    if (!fuente.loadFromFile("./assets/fonts/Minecraft.ttf")) {
         std::cerr << "Error al cargar la fuente" << std::endl;
         exit(-1);
     }
 
-    p1.sprite.setScale(0.2f, 0.2f);
-    p2.sprite.setScale(0.2f, 0.2f);
+    p1.sprite.setScale(0.25f, 0.25f);
+    p2.sprite.setScale(0.25f, 0.25f);
 
     configurarTexto(textoVidasP1, {0, 0});
     configurarTexto(textoVidasP2, {0, 60});
@@ -40,8 +41,8 @@ void Juego::procesarEventos() {
     }
 }
 
-bool disparoP1Presionado = false;
-bool disparoP2Presionado = false;
+//bool disparoP1Presionado = false;
+//bool disparoP2Presionado = false;
 
 void Juego::actualizar() {
     if (finDelJuego) return;
@@ -52,34 +53,18 @@ void Juego::actualizar() {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) p1.direccion.y = 1;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) p1.direccion.x = -1;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) p1.direccion.x = 1;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) 
+        p1.disparar(p1.direccion, p1.sprite.getPosition());
 
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)){
-        if(!disparoP1Presionado){
-            p1.disparar(p1.direccion, p1.sprite.getPosition());
-            disparoP1Presionado = true;
-        }
-       
-    }
-    else{
-        disparoP1Presionado = false;
-    }
-        
     p2.direccion = {0, 0};
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) p2.direccion.y = -1;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) p2.direccion.y = 1;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) p2.direccion.x = -1;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) p2.direccion.x = 1;
-    
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)){
-        if(!disparoP2Presionado){
-            p2.disparar(p2.direccion, p2.sprite.getPosition());
-            disparoP2Presionado = true;
-        }
-    }
-    else{
-        disparoP2Presionado = false;
-    }
-        
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) 
+        p2.direccion.x = 1;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) 
+        p2.disparar(p2.direccion, p2.sprite.getPosition());
+
     p1.mover();
     p2.mover();
     p1.actualizarProyectiles();
@@ -93,8 +78,8 @@ void Juego::actualizar() {
         finDelJuego = true;
     }
 
-    textoVidasP1.setString("Vidas Jugador 1 " + std::to_string(p1.vidas));
-    textoVidasP2.setString("Vidas Jugador 2 " + std::to_string(p2.vidas));
+    textoVidasP1.setString("Vidas Jugador 1: " + std::to_string(p1.vidas));
+    textoVidasP2.setString("Vidas Jugador 2: " + std::to_string(p2.vidas));
 }
 
 void Juego::renderizar() {

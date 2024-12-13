@@ -11,9 +11,11 @@ public:
     sf::Texture texture;
     sf::Vector2f direccion;
     std::vector<Proyectil> proyectiles;
+    sf::Clock clock;
+    float cooldownDisparo;
     int vidas;
 
-    Jugador(const std::string &texturePath, sf::Vector2f startPos, int vidasIniciales);
+    Jugador(const std::string &texturePath, sf::Vector2f startPos, int vidasIniciales, float cooldown = 0.1f);
     void mover();
     void disparar(const sf::Vector2f &direccion, const sf::Vector2f &startPos);
     void actualizarProyectiles();
