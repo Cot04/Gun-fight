@@ -8,6 +8,10 @@
 class Juego
 {
 private:
+    sf::Clock reloj;
+    void manejarColisionesConCarretillas(Jugador &jugador);
+    void manejarColisionesBalasConCarretillas();
+
     sf::RenderWindow ventana;
     sf::Font fuente;
     sf::Text textoVidasP1, textoVidasP2;
