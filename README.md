@@ -30,5 +30,5 @@ Para compilar el proyecto y ejecutarlo en la terminal se escribe el codigo "make
 
 
 ## Integrates
-Victor Manuel Hernandez Ortega 23310386
+Victor Manuel Hernandez Ortega 23310386  
 César Octavio Ríos Tinoco 23310390
