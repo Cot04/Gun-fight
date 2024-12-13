@@ -3,7 +3,8 @@
 
 #include <SFML/Graphics.hpp>
 
-class Proyectil {
+class Proyectil
+{
 public:
     sf::RectangleShape shape;
     sf::Vector2f direction;

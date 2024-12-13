@@ -3,7 +3,8 @@
 
 #include "Jugador.hpp"
 
-class Colision {
+class Colision
+{
 public:
     static void manejarColisiones(Jugador &atacante, Jugador &objetivo, int &puntuacion);
 };

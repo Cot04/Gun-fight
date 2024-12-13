@@ -5,13 +5,14 @@
 #include <string>
 
 // Clase para manejar la reproducción de música
-class Musica {
+class Musica
+{
 public:
-    Musica();                           // Constructor
-    ~Musica();                          // Destructor
+    Musica();  // Constructor
+    ~Musica(); // Destructor
 
     // Carga un archivo de música desde una ruta específica
-    bool cargarMusica(const std::string& rutaArchivo);
+    bool cargarMusica(const std::string &rutaArchivo);
 
     // Reproduce la música cargada
     void reproducir();
@@ -20,7 +21,7 @@ public:
     sf::Music::Status obtenerEstado() const;
 
 private:
-    sf::Music musica;                   // Objeto de música de SFML
+    sf::Music musica; // Objeto de música de SFML
 };
 
 #endif // MUSICA_HPP

@@ -5,7 +5,8 @@
 #include "Jugador.hpp"
 #include "Colision.hpp"
 
-class Juego {
+class Juego
+{
 private:
     sf::RenderWindow ventana;
     sf::Font fuente;

@@ -5,7 +5,8 @@
 #include <vector>
 #include "Proyectil.hpp"
 
-class Jugador {
+class Jugador
+{
 public:
     sf::Sprite sprite;
     sf::Texture texture;

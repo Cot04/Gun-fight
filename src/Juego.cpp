@@ -8,9 +8,11 @@ Juego::Juego()
 
     : ventana(sf::VideoMode(WIDTH, HEIGHT), "Gunfight"),
       p1("./assets/images/gunfight.png", {100, HEIGHT / 2}, 10),
-      p2("./assets/images/gunfight2.png", {WIDTH - 100, HEIGHT / 2}, 10) {
+      p2("./assets/images/gunfight2.png", {WIDTH - 100, HEIGHT / 2}, 10)
+{
 
-    if (!fuente.loadFromFile("./assets/fonts/Minecraft.ttf")) {
+    if (!fuente.loadFromFile("./assets/fonts/Minecraft.ttf"))
+    {
         std::cerr << "Error al cargar la fuente" << std::endl;
         exit(-1);
     }
@@ -22,47 +24,60 @@ Juego::Juego()
     configurarTexto(textoVidasP2, {0, 60});
 }
 
-void Juego::configurarTexto(sf::Text &texto, sf::Vector2f posicion) {
+void Juego::configurarTexto(sf::Text &texto, sf::Vector2f posicion)
+{
     texto.setFont(fuente);
     texto.setCharacterSize(24);
     texto.setFillColor(sf::Color::White);
     texto.setPosition(posicion);
 }
 
-void Juego::procesarEventos() {
+void Juego::procesarEventos()
+{
     sf::Event evento;
-    while (ventana.pollEvent(evento)) {
+    while (ventana.pollEvent(evento))
+    {
         if (evento.type == sf::Event::Closed)
             ventana.close();
 
-        if (finDelJuego && sf::Keyboard::isKeyPressed(sf::Keyboard::R)) {
+        if (finDelJuego && sf::Keyboard::isKeyPressed(sf::Keyboard::R))
+        {
             reiniciar();
         }
     }
 }
 
-//bool disparoP1Presionado = false;
-//bool disparoP2Presionado = false;
+// bool disparoP1Presionado = false;
+// bool disparoP2Presionado = false;
 
-void Juego::actualizar() {
-    if (finDelJuego) return;
+void Juego::actualizar()
+{
+    if (finDelJuego)
+        return;
 
     // Movimiento y disparos de jugadores
     p1.direccion = {0, 0};
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) p1.direccion.y = -1;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) p1.direccion.y = 1;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) p1.direccion.x = -1;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) p1.direccion.x = 1;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) 
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+        p1.direccion.y = -1;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+        p1.direccion.y = 1;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+        p1.direccion.x = -1;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+        p1.direccion.x = 1;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
         p1.disparar(p1.direccion, p1.sprite.getPosition());
 
     p2.direccion = {0, 0};
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) p2.direccion.y = -1;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) p2.direccion.y = 1;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) p2.direccion.x = -1;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) 
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+        p2.direccion.y = -1;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+        p2.direccion.y = 1;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+        p2.direccion.x = -1;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
         p2.direccion.x = 1;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) 
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
         p2.disparar(p2.direccion, p2.sprite.getPosition());
 
     p1.mover();
@@ -74,7 +89,8 @@ void Juego::actualizar() {
     Colision::manejarColisiones(p1, p2, puntuacionRojo);
     Colision::manejarColisiones(p2, p1, puntuacionAzul);
 
-    if (p1.vidas <= 0 || p2.vidas <= 0) {
+    if (p1.vidas <= 0 || p2.vidas <= 0)
+    {
         finDelJuego = true;
     }
 
@@ -82,14 +98,16 @@ void Juego::actualizar() {
     textoVidasP2.setString("Vidas Jugador 2: " + std::to_string(p2.vidas));
 }
 
-void Juego::renderizar() {
+void Juego::renderizar()
+{
     ventana.clear();
     p1.dibujar(ventana);
     p2.dibujar(ventana);
     ventana.draw(textoVidasP1);
     ventana.draw(textoVidasP2);
 
-    if (finDelJuego) {
+    if (finDelJuego)
+    {
         sf::Text textoFin;
         textoFin.setFont(fuente);
         textoFin.setCharacterSize(30);
@@ -102,7 +120,8 @@ void Juego::renderizar() {
     ventana.display();
 }
 
-void Juego::reiniciar() {
+void Juego::reiniciar()
+{
     p1.sprite.setPosition({100, HEIGHT / 2});
     p2.sprite.setPosition({WIDTH - 100, HEIGHT / 2});
     p1.vidas = 10;
@@ -114,8 +133,10 @@ void Juego::reiniciar() {
     finDelJuego = false;
 }
 
-void Juego::ejecutar() {
-    while (ventana.isOpen()) {
+void Juego::ejecutar()
+{
+    while (ventana.isOpen())
+    {
         procesarEventos();
         actualizar();
         renderizar();
